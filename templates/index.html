@@ -1,1 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Breast Cancer Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #FFA500, #FFB347);
+            color: #333;
+            text-align: center;
+            padding: 40px;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 150px;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 15px;
+            background-color: #FF7F50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #FF6347;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        footer {
+            margin-top: 50px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Breast Cancer Predictor</h1>
+    <p>Enter the tumor features below:</p>
 
+    <!-- Example inputs: you can add more features if you want -->
+    <input type="number" id="radius_mean" placeholder="Radius Mean">
+    <input type="number" id="texture_mean" placeholder="Texture Mean">
+    <input type="number" id="perimeter_mean" placeholder="Perimeter Mean">
+    <br>
+    <button onclick="predict()">Predict</button>
+
+    <div id="output"></div>
+
+    <footer>
+        Mabel Adenike Ojo MSc Bioinformatics student © 2026
+    </footer>
+
+    <script>
+        async function predict() {
+            // Get input values
+            const radius = parseFloat(document.getElementById("radius_mean").value);
+            const texture = parseFloat(document.getElementById("texture_mean").value);
+            const perimeter = parseFloat(document.getElementById("perimeter_mean").value);
+
+            // Build JSON to send to Flask
+            const data = {
+                radius_mean: radius,
+                texture_mean: texture,
+                perimeter_mean: perimeter
+                // add more features if your model uses them
+            };
+
+            try {
+                const response = await fetch("/predict", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                // Convert 0/1 prediction to user-friendly label
+                let label = result.Prediction === 1 ? "Malignant" : "Benign";
+
+                // Show result
+                document.getElementById("output").innerText = 
+                    `Prediction: ${label}, Probability: ${result.Probability.toFixed(2)}`;
+            } catch (error) {
+                document.getElementById("output").innerText = "Error: " + error;
+            }
+        }
+    </script>
+</body>
+</html>
